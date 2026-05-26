@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scientific Calculator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <main class="calculator">
+    <header class="calculator__header">
+      <h1>Scientific Calculator</h1>
+      <div class="angle-toggle" role="group" aria-label="Angle mode">
+        <button type="button" class="angle-btn active" data-mode="deg">DEG</button>
+        <button type="button" class="angle-btn" data-mode="rad">RAD</button>
+      </div>
+    </header>
+
+    <section class="display" aria-live="polite">
+      <div class="display__expression" id="expression"></div>
+      <div class="display__result" id="result">0</div>
+      <div class="display__error" id="error" hidden></div>
+    </section>
+
+    <section class="keypad" id="keypad">
+      <!-- Row 1: memory & clear -->
+      <button type="button" class="key key--func" data-action="clear">AC</button>
+      <button type="button" class="key key--func" data-action="backspace">⌫</button>
+      <button type="button" class="key key--func" data-insert="(">(</button>
+      <button type="button" class="key key--func" data-insert=")">)</button>
+
+      <!-- Row 2: scientific -->
+      <button type="button" class="key key--sci" data-insert="sin(">sin</button>
+      <button type="button" class="key key--sci" data-insert="cos(">cos</button>
+      <button type="button" class="key key--sci" data-insert="tan(">tan</button>
+      <button type="button" class="key key--op" data-insert="/">÷</button>
+
+      <!-- Row 3 -->
+      <button type="button" class="key key--sci" data-insert="asin(">sin⁻¹</button>
+      <button type="button" class="key key--sci" data-insert="acos(">cos⁻¹</button>
+      <button type="button" class="key key--sci" data-insert="atan(">tan⁻¹</button>
+      <button type="button" class="key key--op" data-insert="*">×</button>
+
+      <!-- Row 4 -->
+      <button type="button" class="key key--sci" data-insert="log(">log</button>
+      <button type="button" class="key key--sci" data-insert="ln(">ln</button>
+      <button type="button" class="key key--sci" data-insert="sqrt(">√</button>
+      <button type="button" class="key key--op" data-insert="-">−</button>
+
+      <!-- Row 5 -->
+      <button type="button" class="key key--sci" data-insert="^">xʸ</button>
+      <button type="button" class="key key--sci" data-insert="pi">π</button>
+      <button type="button" class="key key--sci" data-insert="e">e</button>
+      <button type="button" class="key key--op" data-insert="+">+</button>
+
+      <!-- Row 6 -->
+      <button type="button" class="key" data-insert="7">7</button>
+      <button type="button" class="key" data-insert="8">8</button>
+      <button type="button" class="key" data-insert="9">9</button>
+      <button type="button" class="key key--sci" data-insert="factorial(">n!</button>
+
+      <!-- Row 7 -->
+      <button type="button" class="key" data-insert="4">4</button>
+      <button type="button" class="key" data-insert="5">5</button>
+      <button type="button" class="key" data-insert="6">6</button>
+      <button type="button" class="key key--sci" data-insert="abs(">|x|</button>
+
+      <!-- Row 8 -->
+      <button type="button" class="key" data-insert="1">1</button>
+      <button type="button" class="key" data-insert="2">2</button>
+      <button type="button" class="key" data-insert="3">3</button>
+      <button type="button" class="key key--sci" data-insert="exp(">eˣ</button>
+
+      <!-- Row 9 -->
+      <button type="button" class="key" data-insert="0">0</button>
+      <button type="button" class="key" data-insert=".">.</button>
+      <button type="button" class="key key--sci" data-insert="%">%</button>
+      <button type="button" class="key key--equals" data-action="equals">=</button>
+    </section>
+
+    <footer class="calculator__footer">
+      <p>Press <kbd>Enter</kbd> to calculate · <kbd>Esc</kbd> to clear</p>
+    </footer>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/calculator.js') }}"></script>
+</body>
+</html>
