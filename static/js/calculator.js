@@ -3,73 +3,128 @@
   const resultEl = document.getElementById("result");
   const errorEl = document.getElementById("error");
   const keypad = document.getElementById("keypad");
+  const equalsBtn = keypad.querySelector('[data-action="equals"]');
   const angleBtns = document.querySelectorAll(".angle-btn");
 
   let expression = "";
+  let lastResult = "0";
+  let justCalculated = false;
   let angleMode = "deg";
 
-  function updateDisplay() {
-    expressionEl.textContent = expression;
-    hideError();
+  const OPERATORS = new Set(["+", "-", "*", "/", "%", "^"]);
+
+  function renderExpression() {
+    expressionEl.textContent = expression || "0";
+  }
+
+  function hideError() {
+    errorEl.hidden = true;
+    resultEl.classList.remove("has-error");
   }
 
   function showError(msg) {
     errorEl.textContent = msg;
     errorEl.hidden = false;
-    resultEl.classList.add("display__result--error");
+    resultEl.textContent = "Error";
+    resultEl.classList.add("has-error");
   }
 
-  function hideError() {
-    errorEl.hidden = true;
-    resultEl.classList.remove("display__result--error");
+  function isOperatorChar(ch) {
+    return OPERATORS.has(ch);
+  }
+
+  function startsNewNumber(ch) {
+    return /\d/.test(ch) || ch === "." || ch === "(";
   }
 
   function insert(value) {
+    hideError();
+
+    if (justCalculated) {
+      if (isOperatorChar(value)) {
+        expression = lastResult;
+      } else if (startsNewNumber(value) || value === "pi" || value === "e") {
+        expression = "";
+      } else {
+        expression = lastResult;
+      }
+      justCalculated = false;
+    }
+
     expression += value;
-    updateDisplay();
+    renderExpression();
   }
 
   function clearAll() {
     expression = "";
+    lastResult = "0";
+    justCalculated = false;
     resultEl.textContent = "0";
-    updateDisplay();
+    hideError();
+    renderExpression();
   }
 
   function backspace() {
+    if (justCalculated) {
+      clearAll();
+      return;
+    }
     expression = expression.slice(0, -1);
-    updateDisplay();
+    hideError();
+    renderExpression();
+  }
+
+  function setLoading(loading) {
+    equalsBtn.disabled = loading;
+    resultEl.classList.toggle("is-loading", loading);
   }
 
   async function calculate() {
-    if (!expression.trim()) return;
+    const expr = expression.trim();
+    if (!expr) {
+      showError("Enter an expression");
+      return;
+    }
 
     hideError();
-    expressionEl.textContent = expression;
+    setLoading(true);
 
     try {
       const res = await fetch("/api/calculate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ expression, angle_mode: angleMode }),
+        body: JSON.stringify({ expression: expr, angle_mode: angleMode }),
       });
 
-      const data = await res.json();
-
-      if (!data.ok) {
-        showError(data.error || "Error");
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        showError("Server returned an invalid response");
         return;
       }
 
-      resultEl.textContent = data.result;
-      expression = String(data.result);
+      if (!data.ok) {
+        showError(data.error || "Invalid expression");
+        return;
+      }
+
+      const display = data.display ?? String(data.result);
+      resultEl.textContent = display;
+      lastResult = String(data.result);
+      expression = lastResult;
+      justCalculated = true;
+      renderExpression();
     } catch {
-      showError("Could not reach server");
+      showError("Cannot connect — run: python app.py");
+    } finally {
+      setLoading(false);
     }
   }
 
   keypad.addEventListener("click", (e) => {
     const btn = e.target.closest("button");
-    if (!btn) return;
+    if (!btn || btn.disabled) return;
 
     const action = btn.dataset.action;
     const value = btn.dataset.insert;
@@ -114,9 +169,17 @@
       return;
     }
 
-    const allowed = "0123456789.+-*/()%^";
-    if (allowed.includes(e.key)) {
+    const map = { "*": "*", "/": "/", "+": "+", "-": "-", "%": "%", "^": "^" };
+    if (map[e.key]) {
+      e.preventDefault();
+      insert(map[e.key]);
+      return;
+    }
+
+    if (/^[0-9.()]$/.test(e.key)) {
       insert(e.key);
     }
   });
+
+  renderExpression();
 })();

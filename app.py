@@ -3,11 +3,11 @@
 import ast
 import math
 import operator
+import re
 from flask import Flask, jsonify, render_template, request
 
 app = Flask(__name__)
 
-# Allowed binary operators
 _BIN_OPS = {
     ast.Add: operator.add,
     ast.Sub: operator.sub,
@@ -18,13 +18,11 @@ _BIN_OPS = {
     ast.Pow: operator.pow,
 }
 
-# Allowed unary operators
 _UNARY_OPS = {
     ast.UAdd: operator.pos,
     ast.USub: operator.neg,
 }
 
-# Math functions exposed to expressions (radians unless noted)
 _MATH_FUNCS = {
     "sin": math.sin,
     "cos": math.cos,
@@ -49,6 +47,93 @@ _MATH_FUNCS = {
 
 _CONSTANTS = {"pi": math.pi, "e": math.e}
 
+_TRIG = frozenset({"sin", "cos", "tan", "asin", "acos", "atan"})
+
+
+def preprocess(expression: str) -> str:
+    """Normalize symbols and insert implicit multiplication."""
+    expr = expression.strip()
+    expr = (
+        expr.replace("×", "*")
+        .replace("÷", "/")
+        .replace("−", "-")
+        .replace("–", "-")
+        .replace("^", "**")
+        .replace("π", "pi")
+        .replace("√", "sqrt")
+    )
+
+    tokens = []
+    i = 0
+    n = len(expr)
+
+    def peek_word(start: int) -> str | None:
+        m = re.match(r"[a-zA-Z_][a-zA-Z0-9_]*", expr[start:])
+        return m.group(0) if m else None
+
+    def ends_value() -> bool:
+        if not tokens:
+            return False
+        last = tokens[-1]
+        return last in (")",) or last.replace(".", "", 1).isdigit() or last in _CONSTANTS
+
+    while i < n:
+        ch = expr[i]
+
+        if ch.isspace():
+            i += 1
+            continue
+
+        if ch.isdigit() or ch == ".":
+            start = i
+            while i < n and (expr[i].isdigit() or expr[i] == "."):
+                i += 1
+            if ends_value():
+                tokens.append("*")
+            tokens.append(expr[start:i])
+            continue
+
+        if ch == "(":
+            if ends_value():
+                tokens.append("*")
+            tokens.append("(")
+            i += 1
+            continue
+
+        if ch == ")":
+            tokens.append(")")
+            i += 1
+            continue
+
+        word = peek_word(i)
+        if word:
+            if ends_value():
+                tokens.append("*")
+            tokens.append(word)
+            i += len(word)
+            continue
+
+        if ch in "+-*/%":
+            if ch == "-" and (not tokens or tokens[-1] in ("(", "+", "-", "*", "/", "%", "**")):
+                tokens.append(ch)
+            else:
+                if ends_value() and ch not in "+-":
+                    pass
+                tokens.append(ch)
+            i += 1
+            continue
+
+        if ch == "*" and i + 1 < n and expr[i + 1] == "*":
+            if ends_value():
+                pass
+            tokens.append("**")
+            i += 2
+            continue
+
+        raise ValueError(f"Invalid character: {ch}")
+
+    return "".join(tokens)
+
 
 class SafeEvaluator(ast.NodeVisitor):
     """Evaluate a restricted subset of Python AST nodes."""
@@ -64,7 +149,7 @@ class SafeEvaluator(ast.NodeVisitor):
             return node.value
         raise ValueError("Invalid constant")
 
-    def visit_Num(self, node):  # Python < 3.8
+    def visit_Num(self, node):
         return node.n
 
     def visit_Name(self, node):
@@ -99,34 +184,52 @@ class SafeEvaluator(ast.NodeVisitor):
         if len(node.args) != 1 or node.keywords:
             raise ValueError(f"{name}() expects exactly one argument")
         arg = self.visit(node.args[0])
-        if name in ("sin", "cos", "tan", "asin", "acos", "atan") and self.use_degrees:
+        if name in _TRIG and self.use_degrees:
             if name in ("sin", "cos", "tan"):
                 arg = math.radians(arg)
             else:
-                result = _MATH_FUNCS[name](arg)
-                return math.degrees(result)
+                return math.degrees(_MATH_FUNCS[name](arg))
+        if name == "factorial":
+            if isinstance(arg, float) and arg.is_integer():
+                arg = int(arg)
+            if not isinstance(arg, int) or arg < 0:
+                raise ValueError("Factorial needs a non-negative integer")
         return _MATH_FUNCS[name](arg)
 
     def generic_visit(self, node):
         raise ValueError(f"Unsupported syntax: {type(node).__name__}")
 
 
-def evaluate(expression: str, angle_mode: str = "deg") -> float:
+def format_result(value) -> str:
+    """Format numeric results for display."""
+    if isinstance(value, bool):
+        return str(value)
+    if isinstance(value, int):
+        return str(value)
+    if isinstance(value, float):
+        if math.isnan(value):
+            return "Error"
+        if math.isinf(value):
+            return "Infinity"
+        if abs(value) >= 1e12 or (abs(value) < 1e-8 and value != 0):
+            return f"{value:.6g}"
+        rounded = round(value, 10)
+        if rounded == int(rounded):
+            return str(int(rounded))
+        text = f"{rounded:.8f}".rstrip("0").rstrip(".")
+        return text
+    return str(value)
+
+
+def evaluate(expression: str, angle_mode: str = "deg"):
     """Parse and evaluate a math expression safely."""
-    expr = expression.strip()
-    if not expr:
-        raise ValueError("Empty expression")
+    if not expression or not expression.strip():
+        raise ValueError("Enter an expression")
 
-    # Normalize common calculator symbols
-    expr = expr.replace("×", "*").replace("÷", "/").replace("^", "**")
-    expr = expr.replace("π", "pi").replace("√", "sqrt")
-
+    expr = preprocess(expression)
     tree = ast.parse(expr, mode="eval")
     use_degrees = angle_mode.lower() != "rad"
     result = SafeEvaluator(use_degrees=use_degrees).visit(tree)
-
-    if isinstance(result, float) and result.is_integer():
-        return int(result)
     return result
 
 
@@ -143,8 +246,12 @@ def calculate():
 
     try:
         result = evaluate(expression, angle_mode)
-        return jsonify({"ok": True, "result": result})
-    except (ValueError, SyntaxError, ZeroDivisionError, OverflowError, TypeError) as exc:
+        return jsonify({"ok": True, "result": result, "display": format_result(result)})
+    except SyntaxError:
+        return jsonify({"ok": False, "error": "Invalid expression"}), 400
+    except ZeroDivisionError:
+        return jsonify({"ok": False, "error": "Cannot divide by zero"}), 400
+    except (ValueError, OverflowError, TypeError) as exc:
         return jsonify({"ok": False, "error": str(exc)}), 400
     except Exception:
         return jsonify({"ok": False, "error": "Invalid expression"}), 400

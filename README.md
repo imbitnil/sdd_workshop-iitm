@@ -4,12 +4,14 @@ A web-based scientific calculator built with [Flask](https://flask.palletsprojec
 
 ## Features
 
-- Basic arithmetic: `+`, `−`, `×`, `÷`, `%`, parentheses
-- Scientific functions: `sin`, `cos`, `tan`, inverse trig, `log`, `ln`, `sqrt`, powers, factorial, `abs`, `exp`
+- Basic arithmetic: `+`, `−`, `×`, `÷`, `%` (modulo), parentheses
+- Scientific functions: `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `log`, `ln`, `sqrt`, powers, factorial, `abs`, `exp`
 - Constants: `π` (pi), `e`
+- **Implicit multiplication** — `2pi`, `2e`, and `2sin(90)` work without typing `*`
 - Angle modes: **DEG** (degrees) and **RAD** (radians)
-- Keyboard shortcuts for faster input
-- Responsive dark-themed UI
+- Chain calculations after pressing `=` (continue with operators or start fresh with digits)
+- Keyboard shortcuts
+- Responsive dark-themed UI with monospace display
 
 ## Requirements
 
@@ -32,18 +34,22 @@ python app.py
 
 Open [http://127.0.0.1:5000](http://127.0.0.1:5000) in your browser.
 
+> **Important:** Start the app with `python app.py`. Do not open `templates/index.html` directly in the browser—static files and the `/api/calculate` endpoint require the Flask server.
+
 ## Usage
 
 ### On-screen buttons
 
-Click number and operator keys to build an expression, then press **=** to calculate.
+Click keys to build an expression, then press **=** to calculate.
 
-Toggle **DEG** / **RAD** at the top for trigonometric functions:
+| Example | Result (DEG) |
+|---------|----------------|
+| `sin(90)` | `1` |
+| `2` + `π` | ~`6.28` |
+| `2` + `^` + `10` | `1024` |
+| `2` + `sin` + `(90)` | `2` (implicit `2*sin(90)`) |
 
-| Mode | Example | Result |
-|------|---------|--------|
-| DEG  | `sin(90)` | `1` |
-| RAD  | `sin(1.5708…)` | `1` |
+Toggle **DEG** / **RAD** at the top for trigonometric functions.
 
 ### Keyboard shortcuts
 
@@ -58,8 +64,9 @@ Toggle **DEG** / **RAD** at the top for trigonometric functions:
 
 ```
 workshop-iitm/
-├── app.py                 # Flask app and safe expression evaluator
+├── app.py                 # Flask app, preprocessor, and safe evaluator
 ├── requirements.txt       # Python dependencies
+├── README.md
 ├── templates/
 │   └── index.html         # Calculator page
 └── static/
@@ -94,16 +101,22 @@ Evaluate a math expression.
 ```json
 {
   "ok": true,
-  "result": 9
+  "result": 9,
+  "display": "9"
 }
 ```
+
+| Field | Description |
+|-------|-------------|
+| `result` | Raw numeric result (number) |
+| `display` | Formatted string for the UI (trailing zeros removed, scientific notation for very large/small values) |
 
 **Error response (400):**
 
 ```json
 {
   "ok": false,
-  "error": "Invalid expression"
+  "error": "Cannot divide by zero"
 }
 ```
 
@@ -112,7 +125,8 @@ Evaluate a math expression.
 - Operators: `+`, `-`, `*`, `/`, `%`, `**` or `^` for power
 - Functions: `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `log`, `ln`, `sqrt`, `abs`, `floor`, `ceil`, `exp`, `factorial`, `degrees`, `radians`
 - Constants: `pi`, `e`
-- Aliases in UI: `×` → `*`, `÷` → `/`, `π` → `pi`, `√` → `sqrt`
+- Implicit multiplication: `2pi` → `2*pi`, `3(4)` → `3*(4)`, `2sin(90)` → `2*sin(90)`
+- UI symbol aliases: `×` → `*`, `÷` → `/`, `π` → `pi`, `√` → `sqrt`, `−` → `-`
 
 ## Security
 
