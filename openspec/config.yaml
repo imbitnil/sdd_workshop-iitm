@@ -1,0 +1,17 @@
+schema: spec-driven
+
+context: |
+  IITM workshop: Flask scientific calculator (Python 3.8+, Flask 3.0+).
+  Server-side AST evaluation only—never eval() on user input.
+  Layout: app.py, templates/index.html, static/css|js.
+  OpenSpec SDD workflow; contrast branch: vibe_coded_submission.
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours

@@ -2,6 +2,8 @@
 
 A web-based scientific calculator built with [Flask](https://flask.palletsprojects.com/). Expressions are evaluated on the server using a restricted AST parser—no unsafe `eval()`.
 
+This project is built with **Specification-Driven Development (SDD)** using [OpenSpec](https://github.com/Fission-AI/OpenSpec). Requirements live under `openspec/changes/scientific-calculator/` (proposal, design, specs, tasks). Run `openspec status --change scientific-calculator` to inspect the change.
+
 ## Features
 
 - Basic arithmetic: `+`, `−`, `×`, `÷`, `%`, parentheses
