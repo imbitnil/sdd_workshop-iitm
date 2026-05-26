@@ -1,7 +1,8 @@
 # calculator-ui Specification
 
 ## Purpose
-TBD - created by archiving change scientific-calculator. Update Purpose after archive.
+
+Browser UI for building expressions, toggling DEG/RAD, calling the calculate API, keyboard shortcuts, and responsive themed layout.
 ## Requirements
 ### Requirement: Expression and result display
 

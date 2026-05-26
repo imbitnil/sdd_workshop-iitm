@@ -1,7 +1,8 @@
 # expression-evaluation Specification
 
 ## Purpose
-TBD - created by archiving change scientific-calculator. Update Purpose after archive.
+
+Safe server-side parsing and evaluation of math expressions using an AST whitelist (no `eval()`), including operators, scientific functions, constants, symbol normalization, and DEG/RAD angle modes.
 ## Requirements
 ### Requirement: Safe expression parsing
 

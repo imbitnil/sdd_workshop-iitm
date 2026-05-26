@@ -28,4 +28,4 @@ None (greenfield project; all requirements are new capabilities).
 - **Code**: `app.py`, `templates/index.html`, `static/css/style.css`, `static/js/calculator.js`, `requirements.txt`, `README.md`
 - **API**: New or aligned `POST /api/calculate` endpoint
 - **Dependencies**: Python 3.8+, Flask 3.0+
-- **Process**: Artifacts live under `openspec/changes/scientific-calculator/`; archived specs will land in `openspec/specs/` when the change is completed
+- **Process**: Change archived to `openspec/changes/archive/2026-05-26-scientific-calculator/`; canonical specs in `openspec/specs/`

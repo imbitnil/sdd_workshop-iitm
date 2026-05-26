@@ -1,7 +1,8 @@
 # calculator-api Specification
 
 ## Purpose
-TBD - created by archiving change scientific-calculator. Update Purpose after archive.
+
+HTTP API for the scientific calculator: serve the web UI and evaluate expressions via `POST /api/calculate` with a documented JSON contract.
 ## Requirements
 ### Requirement: Calculate endpoint
 

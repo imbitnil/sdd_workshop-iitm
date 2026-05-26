@@ -35,7 +35,7 @@ After archive, canonical requirements live under **`openspec/specs/`**.
 ## Verify alignment
 
 ```bash
-openspec validate
+openspec validate --specs
 openspec list --specs
 python -c "from app import evaluate; assert evaluate('sin(90)+2^3','deg')==9"
 ```
