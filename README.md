@@ -2,7 +2,7 @@
 
 A web-based scientific calculator built with [Flask](https://flask.palletsprojects.com/). Expressions are evaluated on the server using a restricted AST parser—no unsafe `eval()`.
 
-This project is built with **Specification-Driven Development (SDD)** using [OpenSpec](https://github.com/Fission-AI/OpenSpec). Requirements live under `openspec/changes/scientific-calculator/` (proposal, design, specs, tasks). Run `openspec status --change scientific-calculator` to inspect the change.
+**Built with Specification-Driven Development (SDD)** using [OpenSpec](https://github.com/Fission-AI/OpenSpec). See [SDD.md](SDD.md) for the full workflow and traceability from specs to code.
 
 ## Features
 
@@ -11,12 +11,13 @@ This project is built with **Specification-Driven Development (SDD)** using [Ope
 - Constants: `π` (pi), `e`
 - Angle modes: **DEG** (degrees) and **RAD** (radians)
 - Keyboard shortcuts for faster input
-- Responsive dark-themed UI
+- Responsive warm-themed UI
 
 ## Requirements
 
 - Python 3.8+
 - Flask 3.0+
+- [OpenSpec CLI](https://github.com/Fission-AI/OpenSpec) (optional, for viewing specs): `npm i -g @fission-ai/openspec@latest`
 
 ## Installation
 
@@ -60,16 +61,26 @@ Toggle **DEG** / **RAD** at the top for trigonometric functions:
 
 ```
 workshop-iitm/
-├── app.py                 # Flask app and safe expression evaluator
-├── requirements.txt       # Python dependencies
+├── app.py                          # Flask app + SafeEvaluator (expression-evaluation, calculator-api)
+├── requirements.txt
+├── README.md
+├── SDD.md                          # SDD workflow and spec → code map
 ├── templates/
-│   └── index.html         # Calculator page
-└── static/
-    ├── css/
-    │   └── style.css      # Styles
-    └── js/
-        └── calculator.js  # UI logic and API calls
+│   └── index.html                  # calculator-ui
+├── static/
+│   ├── css/style.css               # calculator-ui (theme)
+│   └── js/calculator.js            # calculator-ui
+└── openspec/
+    ├── config.yaml                 # OpenSpec project context
+    ├── specs/                      # Canonical requirements (after archive)
+    │   ├── expression-evaluation/spec.md
+    │   ├── calculator-api/spec.md
+    │   └── calculator-ui/spec.md
+    └── changes/archive/
+        └── 2026-05-26-scientific-calculator/   # proposal, design, tasks, delta history
 ```
+
+Inspect specs: `openspec list --specs` · View archived change: `openspec show 2026-05-26-scientific-calculator`
 
 ## API
 

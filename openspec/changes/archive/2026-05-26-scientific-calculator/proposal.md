@@ -21,7 +21,7 @@ The workshop currently has a working scientific calculator built through ad-hoc 
 
 ### Modified Capabilities
 
-<!-- None — greenfield specs under openspec/changes/ -->
+None (greenfield project; all requirements are new capabilities).
 
 ## Impact
 

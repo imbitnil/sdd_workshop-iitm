@@ -1,5 +1,8 @@
-## ADDED Requirements
+# expression-evaluation Specification
 
+## Purpose
+TBD - created by archiving change scientific-calculator. Update Purpose after archive.
+## Requirements
 ### Requirement: Safe expression parsing
 
 The evaluator SHALL parse user expressions using Python's `ast` module in `eval` mode and SHALL NOT use `eval()`, `exec()`, or `compile()` on user input.
@@ -85,9 +88,10 @@ The evaluator SHALL reject empty or whitespace-only expressions. Syntax errors S
 
 ### Requirement: Integer-friendly results
 
-When a floating-point result represents a whole number, the system MAY return an integer type for display (e.g. `9` instead of `9.0`).
+When a floating-point result represents a whole number, the system SHALL return an integer value (e.g. `9` instead of `9.0`).
 
 #### Scenario: Whole number result
 
 - **WHEN** the expression is `sin(90) + 2^3` in `deg` mode
 - **THEN** the result is `9`
+

@@ -1,4 +1,10 @@
-"""Flask scientific calculator with safe expression evaluation."""
+"""Flask scientific calculator with safe expression evaluation.
+
+Implements OpenSpec capabilities:
+  - expression-evaluation (SafeEvaluator, evaluate)
+  - calculator-api (/, /api/calculate)
+See openspec/specs/ and SDD.md.
+"""
 
 import ast
 import math

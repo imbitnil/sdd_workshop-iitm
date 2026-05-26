@@ -59,9 +59,9 @@ The UI SHALL support: `Enter` or `=` to calculate, `Esc` to clear, `Backspace` t
 - **WHEN** the user types `1+1` and presses Enter
 - **THEN** the calculator performs the same action as pressing =
 
-### Requirement: Responsive dark theme
+### Requirement: Responsive visual theme
 
-The UI SHALL use a dark-themed, responsive layout readable on desktop and mobile widths.
+The UI SHALL use a cohesive visual theme (CSS variables) and a responsive layout readable on desktop and mobile widths.
 
 #### Scenario: Viewport scaling
 

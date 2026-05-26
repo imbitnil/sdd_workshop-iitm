@@ -12,7 +12,7 @@ Constraints: Python 3.8+, Flask 3.0+, no `eval()` on user input, minimal depende
 - DEG/RAD modes for trigonometry and inverse trigonometry.
 - REST JSON API and browser UI that match the capability specs.
 - Clear error messages for invalid syntax, unknown symbols, domain errors, and division by zero.
-- Responsive dark-themed UI with keyboard shortcuts.
+- Responsive themed UI with keyboard shortcuts (styling via CSS variables in `static/css/style.css`).
 
 **Non-Goals:**
 
